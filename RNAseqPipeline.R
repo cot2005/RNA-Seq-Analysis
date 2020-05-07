@@ -19,7 +19,7 @@ library("dplyr")
 
 RNAseq.Pipeline<-function(conditionsfile) {
   #processes quant.sf files to counts
-  #rnaData <- RNApipeline.salmon.process()
+  RNApipeline.salmon.process()
   rnaData <- read.table("salmongene_counts.txt", sep = "\t", header = T)
   
   #Checks for duplicated genes in the counts file and deletes the second entry if found.
@@ -108,7 +108,6 @@ RNApipeline.salmon.process<-function() {
   colnames(countsdf)[1:2] <- c("GeneID", "GeneSymbol")
   write.table(abundancedf, "salmongene_abundance.txt", sep = "\t", col.names = T, row.names = F, quote = F)
   write.table(countsdf, "salmongene_counts.txt", sep = "\t", col.names = T, row.names = F, quote = F)
-  return(countsdf)
 }
 
 
