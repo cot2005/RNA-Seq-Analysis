@@ -6,7 +6,7 @@ The conditions table is a tab-delimited file with the format below:
 Sample	Condition	OutputFileName
 Sample1_replicate1	untreated	Sample1vsSample2
 Sample1_replicate2	untreated	Sample1vsSample2
-Sample2_replicate1	treated	Sample1vsSample2
+Sample2_replicate1	treated Sample1vsSample2
 Sample2_replicate2	treated	Sample1vsSample2
 Sample1_replicate1	untreated	Sample1vsSample3
 Sample1_replicate2	untreated	Sample1vsSample3
