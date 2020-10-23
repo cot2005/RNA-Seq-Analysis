@@ -1,5 +1,5 @@
 # RNA-Seq-Analysis
-This bulk RNA-seq analysis uses Salmon aligned data to perform differential expression analysis (Using DESeq2), make volcano plots, and output GSEA prerank files(.rnk). The pipeline requires a conditions file which specifies the sample names (they should match the names of the .sf files), which group they belong to and the analysis (output file name) they will be a part of. Different output file names will perform separate differential expression analyses. The analysis is performed as treated/untreated.
+This bulk RNA-seq analysis uses Salmon aligned data to perform differential expression analysis (Using DESeq2), make volcano plots, and output GSEA prerank files(.rnk). The pipeline requires a conditions file which specifies the sample names (they should match the names of the .sf files), which group they belong to and the analysis (output file name) they will be a part of. Different output file names will perform separate differential expression analyses. The analysis is performed as treated/untreated. The genesetFile input allows for customization of the labeling of the volcano plots. The genesetFile must be a list of genes to be labeled in the volcano plots.
 
 The conditions table is a tab-delimited file with the format below:
 ```
@@ -15,4 +15,10 @@ Sample3_replicate2	treated	Sample1vsSample3
 (etc)
 ```
 
-The pipeline can be run on pre-analyzed count data by inputing the name of the count file as the RNAcountFile. The genesetFile input allows for customization of the labeling of the volcano plots. The genesetFile must be a list of genes to be labeled in the volcano plots.
+The pipeline can be run on pre-analyzed count data by inputing the name of the count file as the RNAcountFile. Pre-analyzed count data must have the following format:
+```
+GeneID	GeneSymbol	Sample1	Sample2	Sample3 (etc)
+ENSG_ID1	GENE1	1000	1100	1200
+ENSG_ID2	GENE2	1 2 3
+(etc)
+```
