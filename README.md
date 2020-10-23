@@ -14,3 +14,5 @@ Sample3_replicate1	treated	Sample1vsSample3
 Sample3_replicate2	treated	Sample1vsSample3
 (etc)
 ```
+
+The pipeline can be run on pre-analyzed count data by inputing the name of the count file as the RNAcountFile. The genesetFile input allows for customization of the labeling of the volcano plots. The genesetFile must be a list of genes to be labeled in the volcano plots.
