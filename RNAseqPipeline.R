@@ -1,13 +1,5 @@
 #author: Colin Tang
 #
-#RNA-seq pipeline for analyzing salmon aligned quant.sf files.
-#Will perform normalizations and differential expression analysis.
-#outputs abundance (TPM) file, count file, LFC files indicated in the conditions input,
-#write GSEA files (.rnk), make volcano plots for each LFC file, make PCA graph for all input data
-#
-#run in the folder with all the .sf files and conditions file input with the format: (Sample, Condition, OutputFileName)
-#sample names will be the same as the filenames without the .sf extension.
-#LFC analyses are separated by unique outputfilenames.
 
 library("ggbiplot")
 library("rgl")
@@ -18,11 +10,14 @@ library("ggrepel")
 library("dplyr")
 library("DESeq2")
 
-RNAseq.Pipeline<-function(conditionsfile) {
+RNAseq.Pipeline<-function(conditionsfile, RNAcountFile = NULL, pca = TRUE, genesetFile = NULL) {
   #processes quant.sf files to counts
-  RNApipeline.salmon.process()
-  rnaData <- read.table("salmongene_counts.txt", sep = "\t", header = T)
-  
+  if (is.null(RNAcountFile) == TRUE) {   #allows running pipeline on pre-analyzed count data.
+    rnaData <- RNApipeline.salmon.process()   
+    rnaData <- read.table("salmongene_counts.txt", sep = "\t", header = T)
+  } else {
+    rnaData <- read.table(RNAcountFile, sep = "\t", header = T)
+  }
   #Checks for duplicated genes in the counts file and deletes the second entry if found.
   duplicatedGenes <- which(duplicated(rnaData[,1]) == T)
   if (length(duplicatedGenes) > 0) {
@@ -34,16 +29,18 @@ RNAseq.Pipeline<-function(conditionsfile) {
   geneKey <- rnaData[,1:2]
   
   #reorganizes data, makes pca groups table, and makes PCA graph
-  PCAdata <- read.table("salmongene_abundance.txt", sep = "\t", header = T)
-  PCAdata <- PCAdata[,-1:-2]
-  RNAsamples <- colnames(PCAdata)
-  labelsdf <- t(as.data.frame(strsplit(RNAsamples, "_")))
-  PCAsamples <- paste(labelsdf[,3], labelsdf[,4], labelsdf[,5], sep = "_")
-  colnames(PCAdata) <- PCAsamples
-  PCAconditions <- data.frame(Samples = PCAsamples, 
-                              Condition = factor(paste(labelsdf[,2], labelsdf[,3], sep = "_")))
-  RNApipeline.pca(PCAdata, PCAconditions)
-  
+  if (pca == TRUE && is.null(RNAcountFile) == TRUE) {
+    PCAdata <- read.table("salmongene_abundance.txt", sep = "\t", header = T)
+    PCAdata <- PCAdata[,-1:-2]
+    RNAsamples <- colnames(PCAdata)
+    labelsdf <- t(as.data.frame(strsplit(RNAsamples, "_")))
+    PCAsamples <- paste(labelsdf[,3], labelsdf[,4], labelsdf[,5], sep = "_")
+    colnames(PCAdata) <- PCAsamples
+    PCAconditions <- data.frame(Samples = PCAsamples, 
+                                Condition = factor(paste(labelsdf[,2], labelsdf[,3], sep = "_")))
+    RNApipeline.pca(PCAdata, PCAconditions)
+  }
+
   conditionsdf <- read.table(conditionsfile, sep = "\t", header = T)
   #determines number of analyses for deseq loop
   listAnalysis <- levels(conditionsdf$OutputFileName)
@@ -67,7 +64,7 @@ RNAseq.Pipeline<-function(conditionsfile) {
     write.table(RNAlfc, paste(i, ".txt", sep = ""), sep = "\t", col.names = T, row.names = F, quote = F)
     write.table(subset(RNAlfc, select = c(2,4)), paste(i, "_GSEA.rnk", sep = ""), sep = "\t", col.names = F, row.names = F, quote = F)
     #makes volcano plot
-    RNApipeline.volcano.plot(RNAlfc, alphavalue = 0.05, topgenes = 20, graphname = i)
+    RNApipeline.volcano.plot(RNAlfc, alphavalue = 0.05, genesetFile = genesetFile, graphname = i, topgenes = 20)
   }
 }
 
@@ -109,6 +106,7 @@ RNApipeline.salmon.process<-function() {
   colnames(countsdf)[1:2] <- c("GeneID", "GeneSymbol")
   write.table(abundancedf, "salmongene_abundance.txt", sep = "\t", col.names = T, row.names = F, quote = F)
   write.table(countsdf, "salmongene_counts.txt", sep = "\t", col.names = T, row.names = F, quote = F)
+  return(countsdf)
 }
 
 
@@ -136,9 +134,10 @@ RNApipeline.DESeq2<-function(tempRNAdata, conditions, geneKey) {
 
 
 # Makes volcanoplot
+# limsPercentile uses input percentile to tag outliers and convert them to triangles.
 #
 RNApipeline.volcano.plot<-function(datadf, alphavalue = 0.05, lfcLim = 1.5, topgenes = 10, genesetFile = NULL, graphname = "volcano_",
-                       xlims = c(-2.5,2.5), ylims = c(0,20), width = 6, height = 6) {
+                       xlimsPercentile = 0.001, ylimsPercentile = 0.001, width = 6, height = 6) {
   datadf$GeneSymbol <- as.character(datadf$GeneSymbol)
   datadf$padj <- p.adjust(datadf$pvalue, method = "BH")
   datadf <- na.omit(datadf)
@@ -152,16 +151,23 @@ RNApipeline.volcano.plot<-function(datadf, alphavalue = 0.05, lfcLim = 1.5, topg
   } else if (top > 0 && is.null(genesetFile) == T) {
     input$label[1:top] <- input$GeneSymbol[1:top]
   }
+  # determines x and y limits
+  upperFDR <- ceiling(-log(quantile(input$padj, ylimsPercentile), 10))
+  upperlfc <- max(abs(ceiling(quantile(input$log2FoldChange, xlimsPercentile))), ceiling(quantile(RNAlfc[,4], (1-xlimsPercentile))))
+  xlims <- c(-upperlfc, upperlfc)
+  ylims <- c(0, upperFDR)
+  
   # changes outliers to triangles
   input$shape <- ifelse(-log10(input$padj) > ylims[2] | abs(input$log2FoldChange) > xlims[2], "triangle", "circle")
   input$padj[-log10(input$padj) > ylims[2]] <- 10^-(ylims[2])
   input$log2FoldChange[input$log2FoldChange > xlims[2]] <- xlims[2]
   input$log2FoldChange[input$log2FoldChange < -xlims[2]] <- -xlims[2]
+  
   # begins plotting
   v <- ggplot(input, aes(log2FoldChange, -log10(padj))) #volcanoplot with log2Foldchange versus pvalue
   v + geom_point(aes(col = sig, shape=shape)) + #add points colored by significance
     scale_color_manual(values = c("grey50","red")) + xlim(xlims) + ylim(ylims) +
-    xlab("log2(fold change)") + ylab("-log10(FDR)") + theme_bw() + 
+    xlab("log2(fold change)") + ylab("-log10(FDR)") + ggtitle(graphname) + theme_bw() + 
     theme(legend.position = "none", axis.text = element_text(size=14), axis.title = element_text(size=16,face="bold")) + #ggtitle("Volcanoplot")
     geom_text_repel(label = input$label, box.padding = 0.3, size = 4, force = 9, segment.size = 0.3, min.segment.length = 0.1, segment.alpha = 0.5) #adding text for the top 20 genes
   ggsave(paste(graphname, "_Volcanoplot.pdf", sep = ""), width = width, height = height)
@@ -185,5 +191,3 @@ RNApipeline.pca<-function(pcaData, pcaGroups) {
     ggtitle('Unsupervised PCA', subtitle = "Using Genes from Panel")
   ggsave("PCAnalysis.pdf", width = 12, height = 8)
 }
-
-
