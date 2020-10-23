@@ -137,7 +137,7 @@ RNApipeline.DESeq2<-function(tempRNAdata, conditions, geneKey) {
 
 # Makes volcanoplot
 #
-RNApipeline.volcano.plot<-function(rnaseqdata, alphavalue = 0.05, lfcLim = 1.5, topgenes = 10, genesetFile = NULL, graphname = "volcano_",
+RNApipeline.volcano.plot<-function(datadf, alphavalue = 0.05, lfcLim = 1.5, topgenes = 10, genesetFile = NULL, graphname = "volcano_",
                        xlims = c(-2.5,2.5), ylims = c(0,20), width = 6, height = 6) {
   datadf$GeneSymbol <- as.character(datadf$GeneSymbol)
   datadf$padj <- p.adjust(datadf$pvalue, method = "BH")
