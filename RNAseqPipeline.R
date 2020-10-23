@@ -16,6 +16,7 @@ library("biomaRt")
 library("ggplot2")
 library("ggrepel")
 library("dplyr")
+library("DESeq2")
 
 RNAseq.Pipeline<-function(conditionsfile) {
   #processes quant.sf files to counts
