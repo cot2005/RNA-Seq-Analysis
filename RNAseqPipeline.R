@@ -153,7 +153,7 @@ RNApipeline.volcano.plot<-function(datadf, alphavalue = 0.05, lfcLim = 1.5, topg
   }
   # determines x and y limits
   upperFDR <- ceiling(-log(quantile(input$padj, ylimsPercentile), 10))
-  upperlfc <- max(abs(ceiling(quantile(input$log2FoldChange, xlimsPercentile))), ceiling(quantile(RNAlfc[,4], (1-xlimsPercentile))))
+  upperlfc <- max(abs(ceiling(quantile(input$log2FoldChange, xlimsPercentile))), ceiling(quantile(input$log2FoldChange, (1-xlimsPercentile))))
   xlims <- c(-upperlfc, upperlfc)
   ylims <- c(0, upperFDR)
   
