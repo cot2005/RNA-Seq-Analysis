@@ -24,7 +24,7 @@ ENSG_ID2	GENE2	1 2 3
 ```
 
 # Volcano Plot
-This plotting function is used to create volcano plots from the output log fold change file from the RNA-seq pipeline. The plots and labels can be customized through the inputs of this function. Plot will automatically color significant points as red and convert genes outside of the graph limits to triangles.
+This plotting function is used to create volcano plots from the output log fold change file from the RNA-seq pipeline. The plots and labels can be customized through the inputs of this function. Plot will automatically color significant points as red and convert genes outside of the graph limits to triangles. Sample plot in repository.
 ```
 Usage:
 rnaseqdata = file name containing the differential expression data
