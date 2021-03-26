@@ -39,9 +39,10 @@ xlims = input to set x-axis limits, defaults to +/- 2.5
 ylims = input to set y-axis limits, defaults to 0,20
 width = width for output plot size, defaults to 6
 height = height for output plot size, defaults to 6
+pointsize = size of points in graph, defaults to 1.5
 boxpadding = box padding for labels by ggrepel, defaults to 0.5
 labelRepel = force for labels by ggrepel, defaults to 10
 labelSize = font size for labels, defaults to 5
-axisLabelsize = axis font size, defaults to 16
-axisTitle = axis title font size, defaults to 18
+axisLabelsize = axis font size, defaults to 12
+axisTitle = axis title font size, defaults to 14
 ```
