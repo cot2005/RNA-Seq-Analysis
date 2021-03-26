@@ -22,3 +22,24 @@ ENSG_ID1	GENE1	1000	1100	1200
 ENSG_ID2	GENE2	1 2 3
 (etc)
 ```
+
+# Volcano Plot
+This plotting function is used to create volcano plots from the output log fold change file from the RNA-seq pipeline. The plots and labels can be customized through the inputs of this function. Plot will automatically color significant points as red and convert genes outside of the graph limits to triangles.
+```
+Usage:
+rnaseqdata = file name containing the differential expression data
+alphavalue = threshold for FDR significance
+lfcLim = threshold for log fold change significance
+top = 10
+genesetFile = optional input for gene labels. Input file name containing the genes to be labeled.
+graphname = graph name prefix
+xlims = input to set x-axis limits, defaults to +/- 2.5
+ylims = input to set y-axis limits, defaults to 0,20
+width = width for output plot size, defaults to 6
+height = height for output plot size, defaults to 6
+boxpadding = box padding for labels by ggrepel, defaults to 0.5
+labelRepel = force for labels by ggrepel, defaults to 10
+labelSize = font size for labels, defaults to 5
+axisLabelsize = axis font size, defaults to 16
+axisTitle = axis title font size, defaults to 18
+```
