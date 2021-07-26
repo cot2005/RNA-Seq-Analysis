@@ -147,6 +147,7 @@ RNApipeline.volcano.plot<-function(datadf, alphavalue = 0.05, lfcLim = 1.5, topg
   if (is.null(genesetFile) == F) {
     geneset <- read.table(genesetFile, stringsAsFactors = F)
     geneset$rownum <- match(geneset[,1], datadf$GeneSymbol)
+    geneset <- na.omit(geneset)
     input[geneset[,2],length(input)] <- as.character(geneset[,1])
   } else if (topgenes > 0 && is.null(genesetFile) == T) {
     input$label[1:topgenes] <- input$GeneSymbol[1:topgenes]
