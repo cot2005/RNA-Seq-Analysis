@@ -148,8 +148,8 @@ RNApipeline.volcano.plot<-function(datadf, alphavalue = 0.05, lfcLim = 1.5, topg
     geneset <- read.table(genesetFile, stringsAsFactors = F)
     geneset$rownum <- match(geneset[,1], datadf$GeneSymbol)
     input[geneset[,2],length(input)] <- as.character(geneset[,1])
-  } else if (top > 0 && is.null(genesetFile) == T) {
-    input$label[1:top] <- input$GeneSymbol[1:top]
+  } else if (topgenes > 0 && is.null(genesetFile) == T) {
+    input$label[1:topgenes] <- input$GeneSymbol[1:topgenes]
   }
   # determines x and y limits
   upperFDR <- ceiling(-log(quantile(input$padj, ylimsPercentile), 10))
